@@ -1,0 +1,17 @@
+1、 获取验证码
+url: /image_code/
+请求方法：GET
+发送数据：json
+参数：180、text
+
+参数  	    数据类型    是否必须要传    说明
+image         str 			是 			验证图片
+image_code	  str			是 			验证码id
+text 		  str           是 			验证码内容
+
+返回结果：
+json
+
+errno  
+errmsg
+
