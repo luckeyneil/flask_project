@@ -12,9 +12,10 @@ from flask.ext.wtf import CSRFProtect
 from ihome.api_1_0 import api
 
 
-def create_app():
+def create_app(config_name):
     app = Flask(__name__)
-    # app.config.from_object(config_name)
+    # app初始化
+    app.config.from_object(config_name)
 
     # 在app创建的地方注册蓝图
     app.register_blueprint(api)
