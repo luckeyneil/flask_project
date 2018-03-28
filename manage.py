@@ -16,8 +16,6 @@ from config import *
 
 from ihome import create_app
 
-
-
 # app的创建
 # 调用初始化方法，生成app和db
 app, db = create_app(DevelopmentConfig)
@@ -31,7 +29,5 @@ migrate = Migrate(app, db)
 """---------------------------一切命令最终要添加到manager中-------------------------------"""
 manager.add_command('db', MigrateCommand)
 
-
 if __name__ == '__main__':
     manager.run()
-

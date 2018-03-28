@@ -25,10 +25,10 @@ def create_app(config_name):
     # 定义CSRF对象
     csrf = CSRFProtect(app)
 
-    # redis
-    redis_store = redis.StrictRedis(port=6379, host='127.0.0.1')
+    # redis对象,这是session外其他地方要用到的redis对象
+    redis_store = redis.StrictRedis(port=6379, host='127.0.0.1', db=11)
 
-    # Session，
+    # Session，session存到redis中，配置信息都在app中
     Session(app)
 
     # 项目日志
