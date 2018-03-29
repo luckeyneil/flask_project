@@ -9,7 +9,6 @@ from flask import Flask
 from flask.ext.session import Session
 # from flask_session import Session
 from flask.ext.wtf import CSRFProtect
-
 from config import Config
 
 # utils需要转换为包
@@ -17,6 +16,8 @@ from utils.commons import RegexConverter
 
 # db的创建
 db = SQLAlchemy()
+# 定义session专用redis
+redis_session = None
 
 
 def create_app(config_name):
@@ -49,6 +50,8 @@ def create_app(config_name):
 
     # redis对象,这是session外其他地方要用到的redis对象
     redis_store = redis.StrictRedis(port=Config.REDIS_PORT, host=Config.REDIS_HOST, db=11)
+    # global redis_session
+    # redis_session = redis.StrictRedis(port=Config.REDIS_PORT, host=Config.REDIS_HOST, db=10)
 
     # Session，session存到redis中，配置信息都在app中
     Session(app)

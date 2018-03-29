@@ -29,9 +29,8 @@
                     <div class="menu-content">
                         <img id="user-avatar" src="">
                         <div class="menu-text">
-                            <form id="form-avatar" action="/api/v1.0/avatar" enctype="multipart/form-data">
+                            <form id="form-avatar" action="/api/profile/avatar" method="post" enctype="multipart/form-data">
                                 选择头像：<input type="file" accept="image/*" name="avatar">
-                                <!--<input type="hidden" id="avatar_xsrf" name="_xsrf" value="">-->
                                 <input type="submit" class="btn btn-success" value="上传">
                             </form>
                         </div> 
@@ -68,6 +67,6 @@
     <script src="/static/plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="/static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
     <script src="/static/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
-    <script src="/static/js/ihome/profile.js?v=5"></script>
+    <script src="/static/js/ihome/profile.js"></script>
 </body>
 </html>

@@ -3,6 +3,8 @@
 
 from flask import Blueprint
 from flask import current_app
+from flask import make_response
+from flask.ext.wtf.csrf import generate_csrf
 
 html = Blueprint("html", __name__)
 
@@ -21,4 +23,13 @@ def web_html(file_name):
         file_name = 'html/' + file_name
 
     print file_name
-    return current_app.send_static_file(file_name)
+    # return current_app.send_static_file(file_name)
+
+    # 生成csrf_token值
+    csrf_token = generate_csrf()
+
+    # 将csrf_token设置到cookie中
+    response = make_response(current_app.send_static_file(file_name))
+    response.set_cookie('csrf_token', csrf_token)
+
+    return response
