@@ -9,6 +9,7 @@ from flask.ext.session import Session
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.wtf import CSRFProtect
 
+from config import Config
 from ihome.api_1_0 import api
 
 
@@ -26,7 +27,7 @@ def create_app(config_name):
     csrf = CSRFProtect(app)
 
     # redis对象,这是session外其他地方要用到的redis对象
-    redis_store = redis.StrictRedis(port=6379, host='127.0.0.1', db=11)
+    redis_store = redis.StrictRedis(port=Config.REDIS_PORT, host=Config.REDIS_HOST, db=11)
 
     # Session，session存到redis中，配置信息都在app中
     Session(app)

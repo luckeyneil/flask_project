@@ -5,14 +5,11 @@
 # ihome/__init__: 1.管理app的创建(Flask())，2.db的创建(SQLAlchemy())，3.csrf保护(CSRFProtect())，
 #                    4.redis(redis.StrictRedis())，5.Session()，6.项目日志 等的创建
 # ihome/api_1_0/__init__: 1.定义路由
-import redis
-from flask import Flask
+
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.script import Manager
-from flask.ext.session import Session
-from flask.ext.wtf import CSRFProtect
-from flask_sqlalchemy import SQLAlchemy
-from config import *
+
+from config import DevelopmentConfig, ProductionConfig
 
 from ihome import create_app
 
