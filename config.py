@@ -10,7 +10,7 @@ import logging
 class Config(object):
     """这是要添加到app中的属性，配置"""
     # 配置数据库
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@127.0.0.1/ihome'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:mima@127.0.0.1/ihome'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # SECREK_KEY, redis, Session

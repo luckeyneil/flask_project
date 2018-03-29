@@ -3,6 +3,7 @@
 from datetime import datetime
 from ihome import db
 
+
 class BaseModel(object):
     """模型基类，为每个模型补充创建时间与更新时间"""
 
@@ -94,7 +95,6 @@ class HouseImage(BaseModel, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(256), nullable=False)  # 图片的路径
-
 
     house_id = db.Column(db.Integer, db.ForeignKey("ih_house_info.id"), nullable=False)  # 房屋编号
 

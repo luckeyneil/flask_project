@@ -58,7 +58,7 @@ class Captcha(object):
     def __init__(self):
         self._bezier = Bezier()
         self._dir = os.path.dirname(__file__)
-        # self._captcha_path = os.path.join(self._dir, '..', 'static', 'captcha')
+        # self._captcha_path = os.path.join(self._dir, '..', 'jingtai', 'captcha')
 
     @staticmethod
     def instance():
