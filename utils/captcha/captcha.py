@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-a = 1
+# a = 1
 # refer to `https://bitbucket.org/akorn/wheezy.captcha`
-'''
+
 import random
 import string
 import os.path
@@ -197,7 +197,6 @@ class Captcha(object):
             A tuple, (name, text, StringIO.value).
             For example:
                 ('fXZJN4AFxHGoU5mIlcsdOypa', 'JGW9', '\x89PNG\r\n\x1a\n\x00\x00\x00\r...')
-
         """
         image = Image.new('RGB', (self.width, self.height), (255, 255, 255))
         image = self.background(image)
@@ -223,4 +222,4 @@ if __name__ == '__main__':
     print captcha.generate_captcha()
 
 
-'''
+

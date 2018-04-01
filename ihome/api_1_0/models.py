@@ -44,9 +44,9 @@ class Area(BaseModel, db.Model):
 # 如果是多对多, 直接操作底层的表
 house_facility = db.Table(
     'ih_house_facility',  # 表名
-    #          字段名，    字段类型，             外键关联                   不为空
-    db.Column('house_id', db.Integer, db.ForeignKey('ih_house_info.id'), nullable=False),
-    db.Column('facility_id', db.Integer, db.ForeignKey('ih_facility_info.id'), nullable=False),
+    #          字段名，    字段类型，             外键关联                       主键
+    db.Column('house_id', db.Integer, db.ForeignKey('ih_house_info.id'), primary_key=True),
+    db.Column('facility_id', db.Integer, db.ForeignKey('ih_facility_info.id'), primary_key=True),
 )
 
 
@@ -75,7 +75,7 @@ class House(BaseModel, db.Model):
     area_id = db.Column(db.Integer, db.ForeignKey('ih_area_info.id'), nullable=False)  # 归属地的区域编号
 
     # 如果是多对多, 只需要在一方增加relationship, 同时需要告诉他第三张表的名字
-    facilities = db.relationship('Facility',
+    facilities = db.relationship('Facility',backref='houses',
                                  secondary=house_facility)  # 房子与房子里的设施，与
     images = db.relationship("HouseImage")  # 房屋的图片，不需要按图索骥功能，所以不加backref
     orders = db.relationship("Order", backref="house")  # 房屋的订单
