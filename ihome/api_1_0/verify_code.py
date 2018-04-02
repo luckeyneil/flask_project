@@ -4,28 +4,20 @@ import random
 
 from flask import make_response, jsonify
 from flask import request
+from ihome.utils.response_code import RET
 
 from ihome import constants
+from ihome import redis_store
 from ihome.api_1_0 import api
-
-
-
-# 图形验证码 & 短信验证接口
-# /api/v1_0/image_codes
-
-# image_codes--> 符合第三四条 : 只需要名词变复数 /  获取单个商品需要/后加id
 from ihome.libs.yuntongxin.SendTemplateSMS import CCP
 from ihome.models import User
-from utils.captcha.captcha import captcha
-from ihome import redis_store
-from utils.response_code import RET
+from ihome.utils.captcha.captcha import captcha
 
 
 # print 'verify_code/redis_store:',redis_store
 
 @api.route('/image_codes/<image_code_id>')
 def get_image_codes(image_code_id):
-
     # 生成了验证码
     # 名称，验证码内容，图片
     name, text, image_data = captcha.generate_captcha()
@@ -33,7 +25,7 @@ def get_image_codes(image_code_id):
     # 保存到redis中 setex: 可以设置数据并设置有效期
     # 需要三个参数: key , expiretime, value
     try:
-        redis_store.setex('image_code_%s'%image_code_id, 300, text)
+        redis_store.setex('image_code_%s' % image_code_id, 300, text)
     except Exception as e:
         logging.error(e)
         # resp = {
@@ -46,7 +38,7 @@ def get_image_codes(image_code_id):
         return jsonify(
             errno=RET.DBERR,
             errmsg='保存验证码失败'
-            )
+        )
 
     # 返回图片
     resp = make_response(image_data)
@@ -56,7 +48,8 @@ def get_image_codes(image_code_id):
     # captcha.generate_captcha()
     return resp
 
-# 发送短信验证码的请求，需求参数，
+
+# 发送短信验证码的请求，需求参数，这里正则为什么不能加 ^ ？？？？？
 @api.route('/sms_codes/<re(r"1[34578]\d{9}$"):mobile>')
 def get_sms_codes(mobile):
     """
@@ -71,7 +64,7 @@ def get_sms_codes(mobile):
     # 因为是get，参数是存在args中
     image_code = request.args.get('image_code')
     image_code_id = request.args.get('image_code_id')
-    print '[image_code_id, image_code]:',[image_code_id, image_code]
+    print '[image_code_id, image_code]:', [image_code_id, image_code]
 
     # 二. 验证参数的完整性及有效性
     if not all([image_code_id, image_code]):
@@ -109,7 +102,6 @@ def get_sms_codes(mobile):
         # 一般来说, 只要是删除数据库出错, 都不应该返回错误信息. 因为这个操作, 不是用户做错了
         # 此时, 只需要记录日志即可
 
-
     # 4. 判断用户填写的验证码与真实验证码是否一致, 需要转换小(大)写后在比较
     if real_image_code.lower() != image_code.lower():
         return jsonify(
@@ -135,14 +127,14 @@ def get_sms_codes(mobile):
             )
 
     # 6. 创建/生成6位验证码
-    sms_code = '%06d'%random.randint(0,999999)
-    print 'sms_code:',sms_code
+    sms_code = '%06d' % random.randint(0, 999999)
+    print 'sms_code:', sms_code
 
     # 7. try:将短信验证码保存redis中
     try:
         # 保存到redis中 setex: 可以设置数据并设置有效期
         # 需要三个参数: key , expiretime, value
-        redis_store.setex('sms_code_%s'%mobile, constants.SMS_CODE_EXPIRE_TIME, sms_code)
+        redis_store.setex('sms_code_%s' % mobile, constants.SMS_CODE_EXPIRE_TIME, sms_code)
     except Exception as e:
         logging.error(e)
         return jsonify(
@@ -155,7 +147,7 @@ def get_sms_codes(mobile):
     try:
         # 第一个是手机号, 第二个发短信模板需要的参数[验证码, 过期时间], 第三个短信的模板编号
         # result 如果发送短信成功, 就会返回0, 如果失败,就会返回-1
-        res=ccp.send_template_sms(mobile, [sms_code, constants.CCP_SMS_CODE_EXPIRE_TIME], 1)
+        res = ccp.send_template_sms(mobile, [sms_code, constants.CCP_SMS_CODE_EXPIRE_TIME], 1)
         print 'res:', res
     except Exception as e:
         logging.error(e)
@@ -177,6 +169,4 @@ def get_sms_codes(mobile):
             errno=RET.THIRDERR,
             errmsg='短信发送失败'
         )
-    # return 'get_sms_codes'
-
-
+        # return 'get_sms_codes'

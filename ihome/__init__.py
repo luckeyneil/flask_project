@@ -2,17 +2,14 @@
 
 # ihome/__init__: 1.管理app的创建(Flask())，2.db的创建(SQLAlchemy())，3.csrf保护(CSRFProtect())，
 #                    4.redis(redis.StrictRedis())，5.Session()，6.项目日志 等的创建
-from flask.ext.sqlalchemy import SQLAlchemy
-
 import redis
 from flask import Flask
 from flask.ext.session import Session
-# from flask_session import Session
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.wtf import CSRFProtect
-from config import Config
 
-# utils需要转换为包
-from utils.commons import RegexConverter
+from config import Config
+from ihome.utils.commons import RegexConverter
 
 
 

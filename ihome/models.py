@@ -1,6 +1,10 @@
 # -*- coding:utf-8 -*-
 
 from datetime import datetime
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from ihome import constants
 from ihome import db
 
 
@@ -27,6 +31,40 @@ class User(BaseModel, db.Model):
     # 在一的一方, 添加relationship, 同时添加反向引用
     houses = db.relationship("House", backref="user")  # 用户发布的房屋
     orders = db.relationship("Order", backref="user")  # 用户下的订单
+
+    @property
+    def password(self):
+        raise AttributeError('不让看')
+
+    @password.setter
+    def password(self, val):
+        # 属性的setter方法, 需要传入用户的密码
+        self.password_hash = generate_password_hash(val)
+
+# 检查密码的函数
+    def check_password_hash(self, value):
+        # 需要传入之前的加密项, 及现在的密码
+        return check_password_hash(self.password_hash, value)
+
+    def to_dict(self):
+        """将对象转换为字典数据"""
+        user_dict = {
+            "user_id": self.id,
+            "name": self.name,
+            "mobile": self.mobile,
+            "avatar": constants.QINIU_URL_PATH + self.avatar_url if self.avatar_url else "",
+            "create_time": self.create_time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        return user_dict
+
+    def auth_to_dict(self):
+        """将实名信息转换为字典数据"""
+        auth_dict = {
+            "user_id": self.id,
+            "real_name": self.real_name,
+            "id_card": self.id_card
+        }
+        return auth_dict
 
 
 class Area(BaseModel, db.Model):
