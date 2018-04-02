@@ -22,7 +22,7 @@ def web_html(file_name):
     if file_name != 'favicon.ico':
         file_name = 'html/' + file_name
 
-    print file_name
+    print 'file_name：', file_name
     # return current_app.send_static_file(file_name)
 
     # 生成csrf_token值

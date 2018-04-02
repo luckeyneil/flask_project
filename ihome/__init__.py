@@ -14,6 +14,8 @@ from config import Config
 # utils需要转换为包
 from utils.commons import RegexConverter
 
+
+
 # db的创建
 db = SQLAlchemy()
 # 定义redis
@@ -40,17 +42,19 @@ def create_app(config_name):
     # 向app中添加自定义的路由转换器
     app.url_map.converters['re'] = RegexConverter
 
+    """-------------------创建redis对象，一定要放到注册蓝图之前----------------------"""
+    # redis对象,这是session外其他地方要用到的redis对象
+    global redis_store
+    redis_store = redis.StrictRedis(port=Config.REDIS_PORT, host=Config.REDIS_HOST, db=10)
+    # print 'redis_store:',redis_store
+    # 在app创建的地方注册蓝图
+    from ihome.api_1_0 import api
+    app.register_blueprint(api, url_prefix='/api/v1_0')
+
     # 注册蓝图web_html
     import web_html
     app.register_blueprint(web_html.html)
-    # 在app创建的地方注册蓝图
-    from ihome.api_1_0 import api
-    app.register_blueprint(api)
 
-
-    # redis对象,这是session外其他地方要用到的redis对象
-    global redis_store
-    redis_store = redis.StrictRedis(port=Config.REDIS_PORT, host=Config.REDIS_HOST, db=11)
     # global redis_session
     # redis_session = redis.StrictRedis(port=Config.REDIS_PORT, host=Config.REDIS_HOST, db=10)
 
