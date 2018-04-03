@@ -9,6 +9,7 @@ from ihome import constants
 from ihome import redis_store, db
 from ihome.models import User
 # from ihome.utils import RET
+from ihome.utils.commons import login_required
 from ihome.utils.response_code import RET
 from . import api
 
@@ -249,3 +250,28 @@ def login():
         errmsg='登录成功'
     )
 
+
+@api.route('/sessions', methods=['GET'])
+def check_login():
+    """
+    验证登录状态
+    :return: json
+    """
+    # 尝试从session中获取用户的名字
+    name = session.get("user_name")
+    # 如果session中数据name名字存在，则表示用户已登录，否则未登录
+    if name is not None:
+        return jsonify(errno=RET.OK, errmsg="true", data={"name": name})
+    else:
+        return jsonify(errno=RET.SESSIONERR, errmsg="false")
+
+
+@api.route("/sessions", methods=["DELETE"])
+@login_required
+def logout():
+    """登出"""
+    # 清除session数据, csrf_token需要保留.
+    csrf_token = session['csrf_token']
+    session.clear()
+    session['csrf_token'] = csrf_token
+    return jsonify(errno=RET.OK, errmsg="OK")
