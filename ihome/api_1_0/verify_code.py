@@ -25,7 +25,7 @@ def get_image_codes(image_code_id):
     # 保存到redis中 setex: 可以设置数据并设置有效期
     # 需要三个参数: key , expiretime, value
     try:
-        redis_store.setex('image_code_%s' % image_code_id, 300, text)
+        redis_store.setex('image_code_%s' % image_code_id, constants.IMAGE_CODE_EXPIRE_TIME, text)
     except Exception as e:
         logging.error(e)
         # resp = {
@@ -61,10 +61,13 @@ def get_sms_codes(mobile):
     # mobile
     # image_code
     # image_code_id
-    # 因为是get，参数是存在args中
+    # 因为是get，参数是存在args中,url的？后的内容参数
     image_code = request.args.get('image_code')
     image_code_id = request.args.get('image_code_id')
     print '[image_code_id, image_code]:', [image_code_id, image_code]
+
+    req_dict = request.get_json()
+    print 'req_dict:', req_dict   # 为None，说明前端用简写的$get()发送的不是json数据
 
     # 二. 验证参数的完整性及有效性
     if not all([image_code_id, image_code]):
@@ -170,3 +173,4 @@ def get_sms_codes(mobile):
             errmsg='短信发送失败'
         )
         # return 'get_sms_codes'
+

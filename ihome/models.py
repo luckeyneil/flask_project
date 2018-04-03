@@ -41,8 +41,8 @@ class User(BaseModel, db.Model):
         # 属性的setter方法, 需要传入用户的密码
         self.password_hash = generate_password_hash(val)
 
-# 检查密码的函数
-    def check_password_hash(self, value):
+    # 检查密码的函数
+    def check_password(self, value):
         # 需要传入之前的加密项, 及现在的密码
         return check_password_hash(self.password_hash, value)
 

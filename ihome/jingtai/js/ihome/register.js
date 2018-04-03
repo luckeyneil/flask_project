@@ -134,9 +134,9 @@ $(document).ready(function() {
             mobile : mobile,
             sms_code : phoneCode,
             password : passwd
-        }
+        };
         //这里需要将js对象, 转换成JSON字符串
-        req_json = JSON.stringify(req_data)
+        req_json = JSON.stringify(req_data);
         //$.get和$.post都是ajax的简写, 没法设置json.
 
         // CSRF_token的设置, 除了body里, 还还可以通过请求头设置
@@ -159,7 +159,7 @@ $(document).ready(function() {
                     alert(resp.errmsg);
                 }
             }
-        })
+        });
 
 
         // $.post("/api/v1_0/users", req_json, function (resp) {
@@ -175,4 +175,4 @@ $(document).ready(function() {
 
 
     });
-})
+});

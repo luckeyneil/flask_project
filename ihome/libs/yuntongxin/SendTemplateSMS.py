@@ -9,6 +9,7 @@ accountSid = '8a216da8627648690162804825b40152'
 
 # 主帐号Token
 accountToken = '5b3e411dc7524c2489361f8dc42c3742'
+# accountToken = '525d4018df03b4a80deec8520fc285a9'
 
 # 应用Id
 appId = '8a216da8627648690162804826190159'

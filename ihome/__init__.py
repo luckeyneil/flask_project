@@ -44,6 +44,7 @@ def create_app(config_name):
     global redis_store
     redis_store = redis.StrictRedis(port=Config.REDIS_PORT, host=Config.REDIS_HOST, db=10)
     # print 'redis_store:',redis_store
+
     # 在app创建的地方注册蓝图
     from ihome.api_1_0 import api
     app.register_blueprint(api, url_prefix='/api/v1_0')
@@ -55,7 +56,7 @@ def create_app(config_name):
     # global redis_session
     # redis_session = redis.StrictRedis(port=Config.REDIS_PORT, host=Config.REDIS_HOST, db=10)
 
-    # Session，session存到redis中，配置信息都在app中
+    # Session: session存到redis中，配置信息都在app中
     Session(app)
 
     # 项目日志
