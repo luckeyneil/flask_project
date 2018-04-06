@@ -5,6 +5,6 @@ from flask import Blueprint
 
 api = Blueprint('api', __name__)
 
-import index, verify_code, passport
+import index, verify_code, passport, profile, house
 
 import ihome.models

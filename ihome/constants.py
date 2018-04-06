@@ -14,29 +14,7 @@ LOGIN_ERROR_MAX_COUNT = 5  # 登录最大错误次数
 
 LOGIN_ERROR_COUNT_EXPIRE_TIME = 600  # 登录错误次数过期时间
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+AREA_INFO_EXPIRE_TIME = 600  # 地区信息过期时间
 
 
 
