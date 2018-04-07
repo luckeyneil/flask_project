@@ -16,6 +16,10 @@ LOGIN_ERROR_COUNT_EXPIRE_TIME = 600  # 登录错误次数过期时间
 
 AREA_INFO_EXPIRE_TIME = 600  # 地区信息过期时间
 
+HOME_PAGE_DATA_REDIS_EXPIRES = 600  # 家目录的redis缓存过期时间
+
+HOME_PAGE_MAX_HOUSES = 5  # 家目录最大显示房屋数
+
 
 
 
