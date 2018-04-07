@@ -103,7 +103,7 @@ $(document).ready(function(){
             updateHouseData("renew");
             // 获取页面显示窗口的高度
             var windowHeight = $(window).height();
-            // 为窗口的滚动添加事件函数, **************************************,滚动事件翻页请求
+            // 为窗口的滚动添加事件函数, **************************************,滚动事件翻页请求,距离底部50个像素位就会发送
             // ********************************************************************************************************
             window.onscroll=function(){
                 // var a = document.documentElement.scrollTop==0? document.body.clientHeight : document.documentElement.clientHeight;

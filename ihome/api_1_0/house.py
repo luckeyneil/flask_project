@@ -365,7 +365,7 @@ def get_house_detail(house_id):
 
 
 @api.route("/houses", methods=["GET"])
-def get_house_list():
+def get_search_house_list():
     """搜索功能，获取房屋列表信息"""
     # 一. 获取参数
     start_date_str = request.args.get("sd", "")  # 想要查询的起始时间
@@ -389,6 +389,7 @@ def get_house_list():
             assert start_date <= end_date
 
     except Exception as e:
+        logging.error(e)
         return jsonify(errno=RET.PARAMERR, errmsg="日期参数有误")
 
     # 2.2判断页数
