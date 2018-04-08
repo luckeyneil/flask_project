@@ -7,7 +7,11 @@ from flask import g
 from flask import jsonify
 from flask import request
 
+<<<<<<< HEAD
 from ihome import db, redis_store
+=======
+from ihome import db
+>>>>>>> 1bef859a7ddcacac51fa8a30dd92516d6ae60aef
 from ihome.api_1_0 import api
 from ihome.models import Order, House
 from ihome.utils.commons import login_required
@@ -151,10 +155,14 @@ def get_user_orders():
 @api.route("/orders/<int:order_id>/status", methods=["PUT"])
 @login_required
 def accept_reject_order(order_id):
+<<<<<<< HEAD
     """接单、拒单
     接单和拒单同一个接口，传处不同的 action 实现
     action: accept(接单)，reject(拒单)
     """
+=======
+    """接单、拒单"""
+>>>>>>> 1bef859a7ddcacac51fa8a30dd92516d6ae60aef
     # 一. 获取数据
     # 获取用户信息
     user_id = g.user_id
@@ -195,7 +203,11 @@ def accept_reject_order(order_id):
         reason = req_data.get("reason")
         # 判断房东是否填写拒单原因
         if not reason:
+<<<<<<< HEAD
             return jsonify(errno=RET.PARAMERR, errmsg="参数错误,无拒单原因")
+=======
+            return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+>>>>>>> 1bef859a7ddcacac51fa8a30dd92516d6ae60aef
         # 如果房东选择拒单,把拒单原因存如数据库,
         order.status = "REJECTED"
         # comment字段保存拒单原因
@@ -215,6 +227,7 @@ def accept_reject_order(order_id):
     return jsonify(errno=RET.OK, errmsg="OK")
 
 
+<<<<<<< HEAD
 @api.route("/orders/<int:order_id>/comment", methods=["PUT"])
 @login_required
 def save_order_comment(order_id):
@@ -273,3 +286,5 @@ def save_order_comment(order_id):
     # 四. 返回数据
     return jsonify(errno=RET.OK, errmsg="OK")
 
+=======
+>>>>>>> 1bef859a7ddcacac51fa8a30dd92516d6ae60aef

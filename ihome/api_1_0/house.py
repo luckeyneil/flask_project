@@ -431,8 +431,12 @@ def get_search_house_list():
             不冲突的房屋，即两种情况:
                 要么搜索的截止日期在订单的开始日期之前（order.begin_date>search_end_date）,
                 要么搜索的开始日期在订单的结束日期之后（order.end_date<search_begin_date）,
+<<<<<<< HEAD
                 下面<bd=begin_date, ed=end_date, s_ed=search_end_date, s_bd=search_begin_date>,
             冲突的房屋，即对所有不冲突的房屋取反，即 not(order.bd>s_ed or order.ed<s_bd)
+=======
+            即 not(order.bd>ed or order.ed<bd)
+>>>>>>> 1bef859a7ddcacac51fa8a30dd92516d6ae60aef
             即 order.bd<=ed and order.ed>=bd
             """
             conflict_orders_li = Order.query.filter(Order.begin_date <= end_date, Order.end_date >= start_date).all()
@@ -496,7 +500,10 @@ def get_search_house_list():
             # 执行事务
             pipeline.execute()
         except Exception as e:
+<<<<<<< HEAD
             pipeline.discard()
+=======
+>>>>>>> 1bef859a7ddcacac51fa8a30dd92516d6ae60aef
             logging.error(e)
 
     # 四. 数据返回

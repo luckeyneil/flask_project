@@ -24,7 +24,11 @@ HOUSE_DETAIL_REDIS_EXPIRE_SECOND = 600  # 房屋详情数据在redis中的过期
 
 HOUSE_DETAIL_COMMENT_DISPLAY_COUNTS = 5  # 房屋详情页评论展示数量
 
+<<<<<<< HEAD
 HOUSE_LIST_PAGE_CAPACITY = 3  # 搜索页每页显示的房屋数量
+=======
+HOUSE_LIST_PAGE_CAPACITY = 2  # 搜索页每页显示的房屋数量
+>>>>>>> 1bef859a7ddcacac51fa8a30dd92516d6ae60aef
 
 HOUSE_LIST_PAGE_REDIS_EXPIRES = 300  # 搜索页redis过期时间
 
