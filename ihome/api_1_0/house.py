@@ -2,14 +2,16 @@
 # import json
 import logging
 
+from datetime import datetime
 from flask import g
 from flask import jsonify, json
 from flask import request
+from flask import session
 
 from ihome import constants, db
 from ihome import redis_store
 from ihome.libs.image_storage import storage
-from ihome.models import Area, House, Facility, HouseImage, User
+from ihome.models import Area, House, Facility, HouseImage, User, Order
 from ihome.utils.commons import login_required
 from ihome.utils.response_code import RET
 from . import api
@@ -311,3 +313,192 @@ def get_house_index():
         print '主页轮播图mysql中json_houses:', json_houses
         return '{"errno":0, "errmsg":"OK", "data":%s}' % json_houses
 
+
+@api.route("/houses/<int:house_id>", methods=["GET"])
+def get_house_detail(house_id):
+    """获取房屋详情"""
+    # 前端在房屋详情页面展示时，如果浏览页面的用户不是该房屋的房东，则展示预定按钮，否则不展示，
+    # 所以需要后端返回登录用户的user_id
+    # 尝试获取用户登录的信息，若登录，则返回给前端登录用户的user_id，否则返回user_id=-1
+    user_id = session.get("user_id", "-1")
+
+    # 校验参数
+    if not house_id:
+        return jsonify(errno=RET.PARAMERR, errmsg="参数缺失")
+
+    # 先从redis缓存中获取信息
+    try:
+        ret = redis_store.get("house_info_%s" % house_id)
+    except Exception as e:
+        logging.error(e)
+        ret = None
+    if ret:
+        logging.info("hit house info redis")
+        return '{"errno":"0", "errmsg":"OK", "data":{"user_id":%s, "house":%s}}' % (user_id, ret)
+
+    # 查询数据库
+    try:
+        house = House.query.get(house_id)
+    except Exception as e:
+        logging.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询数据失败")
+
+    if not house:
+        return jsonify(errno=RET.NODATA, errmsg="房屋不存在")
+
+    # 将房屋对象数据转换为字典
+    try:
+        house_data = house.to_full_dict()
+    except Exception as e:
+        logging.error(e)
+        return jsonify(errno=RET.DATAERR, errmsg="数据出错")
+
+    # 存入到redis中
+    json_house = json.dumps(house_data)
+    try:
+        redis_store.setex("house_info_%s" % house_id, constants.HOUSE_DETAIL_REDIS_EXPIRE_SECOND, json_house)
+    except Exception as e:
+        logging.error(e)
+
+    resp = '{"errno":"0", "errmsg":"OK", "data":{"user_id":%s, "house":%s}}' % (user_id, json_house)
+    return resp
+
+
+@api.route("/houses", methods=["GET"])
+def get_search_house_list():
+    """搜索功能，获取房屋列表信息"""
+    # 一. 获取参数
+    start_date_str = request.args.get("sd", "")  # 想要查询的起始时间
+    end_date_str = request.args.get("ed", "")  # 想要查询的终止时间
+    area_id = request.args.get("aid", "")  # 区域id
+    sort_key = request.args.get("sk", "new")  # 排序关键字
+    page = request.args.get("p", 1)  # 页数
+
+    # 二. 校验参数
+    # 2.1判断日期
+    try:
+        start_date = None
+        if start_date_str:
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+
+        end_date = None
+        if end_date_str:
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+
+        if start_date and end_date:
+            assert start_date <= end_date
+
+    except Exception as e:
+        logging.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg="日期参数有误")
+
+    # 2.2判断页数
+    try:
+        page = int(page)
+    except Exception as e:
+        logging.error(e)
+        page = 1
+
+    # 三. 业务逻辑处理
+
+    # 3.1 先从redis缓存中获取数据
+    try:
+        redis_key = "houses_%s_%s_%s_%s" % (start_date_str, end_date_str, area_id, sort_key)
+        resp_json = redis_store.hget(redis_key, page)
+    except Exception as e:
+        logging.error(e)
+        resp_json = None
+
+    if resp_json:
+        # 表示从缓存中拿到了数据
+        print 'search的redis中的resp_json:', resp_json
+        return resp_json
+
+    # 3.2 定义查询数据的参数空列表，最多两个条件，区域和时间
+    filter_params = []
+
+    # 3.3 处理区域信息
+    if area_id:
+        filter_params.append(House.area_id == area_id)
+
+    # 3.4 处理时间, 获取不冲突的房屋信息
+    try:
+        conflict_orders_li = []    # 定义冲突的订单对象的列表
+        if start_date and end_date:
+            # 从订单表中查询冲突的订单，进而获取冲突的房屋id
+            """
+            要获取冲突的房屋对象，即获取除了 不冲突的房屋 以外的对象，
+            不冲突的房屋，即两种情况:
+                要么搜索的截止日期在订单的开始日期之前（order.begin_date>search_end_date）,
+                要么搜索的开始日期在订单的结束日期之后（order.end_date<search_begin_date）,
+                下面<bd=begin_date, ed=end_date, s_ed=search_end_date, s_bd=search_begin_date>,
+            冲突的房屋，即对所有不冲突的房屋取反，即 not(order.bd>s_ed or order.ed<s_bd)
+            即 order.bd<=ed and order.ed>=bd
+            """
+            conflict_orders_li = Order.query.filter(Order.begin_date <= end_date, Order.end_date >= start_date).all()
+        elif start_date:
+            # 从订单表中查询冲突的订单，进而获取冲突的房屋id
+            conflict_orders_li = Order.query.filter(Order.end_date >= start_date).all()
+        elif end_date:
+            # 从订单表中查询冲突的订单，进而获取冲突的房屋id
+            conflict_orders_li = Order.query.filter(Order.begin_date <= end_date).all()
+    except Exception as e:
+        logging.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库异常")
+
+    if conflict_orders_li:
+        conflict_house_id_li = [order.house_id for order in conflict_orders_li]
+        # 添加条件，查询不冲突的房屋
+        filter_params.append(House.id.notin_(conflict_house_id_li))
+
+    # 3.5 排序
+    if sort_key == "booking":
+        house_query = House.query.filter(*filter_params).order_by(House.order_count.desc())
+    elif sort_key == "price-inc":
+        house_query = House.query.filter(*filter_params).order_by(House.price.asc())
+    elif sort_key == "price-des":
+        house_query = House.query.filter(*filter_params).order_by(House.price.desc())
+    else:   # sort_key='new'或不填
+        house_query = House.query.filter(*filter_params).order_by(House.create_time.desc())
+
+    # 3.6 分页  sqlalchemy的分页
+    try:
+        # paginate(self, page=None, per_page=None, error_out=True)
+        #                                 页数     每页数量                          错误输出
+        house_page = house_query.paginate(page, constants.HOUSE_LIST_PAGE_CAPACITY, False)
+    except Exception as e:
+        logging.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库异常")
+
+    # 3.7 将数据转为JSON
+    house_li = house_page.items  # 当前页中的数据结果
+    total_page = house_page.pages  # 总页数
+
+    houses = []
+    for house in house_li:
+        houses.append(house.to_basic_dict())
+
+    # 将结果转换json字符串
+    resp = dict(errno=RET.OK, errmsg="查询成功", data={"houses": houses, "total_page": total_page, "current_page": page})
+    resp_json = json.dumps(resp)
+
+    # 3.8 将结果缓存到redis中
+    if page <= total_page:
+        # 用redis的哈希类型保存分页数据
+        redis_key = "houses_%s_%s_%s_%s" % (start_date_str, end_date_str, area_id, sort_key)
+        try:
+            # 使用redis中的事务
+            pipeline = redis_store.pipeline()
+            # 开启事务
+            pipeline.multi()
+            pipeline.hset(redis_key, page, resp_json)
+            pipeline.expire(redis_key, constants.HOUSE_LIST_PAGE_REDIS_EXPIRES)
+            # 执行事务
+            pipeline.execute()
+        except Exception as e:
+            pipeline.discard()
+            logging.error(e)
+
+    # 四. 数据返回
+    print 'search的mysql中的resp_json:', resp_json
+    return resp_json

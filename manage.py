@@ -15,7 +15,8 @@ from ihome import create_app
 
 # app的创建
 # 调用初始化方法，生成app和db
-app, db = create_app(DevelopmentConfig)
+app, db = create_app(ProductionConfig)
+# app, db = create_app(DevelopmentConfig)
 
 # 程序启动对象
 manager = Manager(app)
