@@ -500,10 +500,6 @@ def get_search_house_list():
             # 执行事务
             pipeline.execute()
         except Exception as e:
-<<<<<<< HEAD
-            pipeline.discard()
-=======
->>>>>>> 1bef859a7ddcacac51fa8a30dd92516d6ae60aef
             logging.error(e)
 
     # 四. 数据返回
